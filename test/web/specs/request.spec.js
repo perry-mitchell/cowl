@@ -1,11 +1,6 @@
 const joinURL = require("url-join");
-const { request } = require("../../../source/index.js");
-
-// function getPutData() {
-//     return fetch(joinURL(SERVER_URL, "/_putdata"))
-//         .then(res => res.json())
-//         .then(res => res.data);
-// }
+const isBuffer = require("is-buffer");
+const { RESPONSE_TYPE_BUFFER, request } = require("../../../source/index.js");
 
 describe("request.js", function() {
     describe("request", function() {
@@ -54,6 +49,19 @@ describe("request.js", function() {
                 expect(result.data.payload).to.deep.equal({
                     testing: true
                 });
+            });
+        });
+
+        it("can GET binary data", function() {
+            const buff = Buffer.from([1, 2, 3]);
+            const options = {
+                url: joinURL(SERVER_URL, "/get/binary"),
+                method: "GET",
+                responseType: RESPONSE_TYPE_BUFFER
+            };
+            return request(options).then(result => {
+                expect(isBuffer(result.data)).to.be.true;
+                expect(result.data.length).to.equal(3);
             });
         });
     })

@@ -1,5 +1,4 @@
 const xhrRequest = require("xhr-request");
-const isBrowser = require("is-browser");
 const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const isBuffer = require("is-buffer");
 const { STATUSES } = require("./status.js");

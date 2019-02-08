@@ -4,7 +4,7 @@
   "description": "Request cowl for making requests from NodeJS/Browser/React-Native",
   "main": "source/index.js",
   "scripts": {
-    "test": "npm run test:node",
+    "test": "npm run test:node && npm run test:web",
     "test:node": "nyc mocha -r test/node/index.js -t 10000 'test/node/specs/**/*.spec.js'",
     "test:web": "rimraf test/web/address.json; concurrently --success=first -k --kill-others-on-fail -n server,tests 'node test/web/server.js' 'npm run test:web:karma'",
     "test:web:karma": "wait-on test/web/address.json && karma start --single-run"
@@ -32,7 +32,6 @@
   "dependencies": {
     "arraybuffer-to-buffer": "0.0.5",
     "is-array-buffer": "^1.0.1",
-    "is-browser": "^2.1.0",
     "is-buffer": "^2.0.3",
     "xhr-request": "^1.1.0"
   },
