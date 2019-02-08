@@ -1,8 +1,8 @@
 const xhrRequest = require("xhr-request");
 const isBrowser = require("is-browser");
-const httpStatus = require("http-status");
-const isArrayBuffer = require("is-array-buffer");
+const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const isBuffer = require("is-buffer");
+const { STATUSES } = require("./status.js");
 
 const BUFFER_RESPONSE_TYPE = /buffer$/;
 const DEFAULT_METHOD = "GET";
@@ -54,7 +54,7 @@ function createResponse(options, data, response) {
         headers: response.headers,
         data: transformResponseData(options, data),
         statusCode: response.statusCode,
-        status: httpStatus[response.statusCode]
+        status: STATUSES[response.statusCode]
     };
 }
 
@@ -90,7 +90,7 @@ function request(rawOptions) {
         xhrRequest(options.url, options, function __onResponse(err, data, response) {
             const { statusCode } = response;
             if (err) {
-                const errCodeMsg = `${statusCode} ${httpStatus[statusCode] || "Unknown error"}`;
+                const errCodeMsg = `${statusCode} ${STATUSES[statusCode] || "Unknown error"}`;
                 const newErr = new Error(`Request failed: ${options.method} ${options.url} (${errCodeMsg})`);
                 newErr.code = statusCode;
                 return reject(newErr);
