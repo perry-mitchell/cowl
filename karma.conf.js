@@ -53,7 +53,7 @@ module.exports = function (config) {
         customLaunchers: {
             ChromeNoSecurity: {
                 base: "Chrome",
-                flags: ["--disable-web-security"]
+                flags: ["--disable-web-security", "--headless", "--remote-debugging-port=9222"]
             }
         },
 
