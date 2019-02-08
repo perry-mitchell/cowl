@@ -1,22 +1,22 @@
 matrix:
   include:
     - language: node_js
-      script: npm run test:ci:node
+      script: npm run test:node
       node_js: "stable"
       env:
         - NAME="Node stable"
     - language: node_js
-      script: npm run test:ci:node
+      script: npm run test:node
       node_js: 10
       env:
         - NAME="Node 10"
     - language: node_js
-      script: npm run test:ci:node
+      script: npm run test:node
       node_js: 8
       env:
         - NAME="Node 8"
     - language: node_js
-      script: npm run test:ci:node
+      script: npm run test:node
       node_js: 6
       env:
         - NAME="Node 6"
