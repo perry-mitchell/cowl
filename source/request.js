@@ -47,7 +47,7 @@ function convertArrayBuffer(ab) {
  */
 function createResponse(options, data, response) {
     return {
-        url: options.url,
+        url: response.url,
         method: options.method,
         headers: response.headers,
         data: transformResponseData(options, data),
