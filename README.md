@@ -1,7 +1,7 @@
 # Cowl
 > Request cowl for making requests from NodeJS/Browser/React-Native
 
-[![Build Status](https://travis-ci.org/perry-mitchell/cowl.svg?branch=master)](https://travis-ci.org/perry-mitchell/cowl)
+[![npm version](https://badge.fury.io/js/cowl.svg)](https://www.npmjs.com/package/cowl) [![Build Status](https://travis-ci.org/perry-mitchell/cowl.svg?branch=master)](https://travis-ci.org/perry-mitchell/cowl)
 
 ## About
 
