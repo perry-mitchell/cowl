@@ -13,7 +13,6 @@ const RESPONSE_TYPE_TEXT = "text";
  * @typedef {Object} RequestOptions
  * @property {Object=} body - The body data to send
  * @property {Object=} headers - Headers to send
- * @property {Boolean=} json - Whether or not to treat the request as a JSON request (default: true)
  * @property {String=} method - The HTTP method (default: GET)
  * @property {String|Object=} query - The query parameters for the request
  * @property {String=} responseType - The response type (buffer/json/text) (default: json). ArrayBuffers will be returned in the browser.
@@ -84,13 +83,18 @@ function request(rawOptions) {
         // If the body is a buffer and the original options did NOT specify JSON,
         // disable the JSON parameter
         options.json = false;
+    } else if (options.responseType !== RESPONSE_TYPE_JSON) {
+        options.json = false;
     }
     return new Promise(function __performRequest(resolve, reject) {
         xhrRequest(options.url, options, function __onResponse(err, data, response) {
             const { statusCode } = response;
             if (err) {
                 const errCodeMsg = `${statusCode} ${STATUSES[statusCode] || "Unknown error"}`;
-                const newErr = new Error(`Request failed: ${options.method} ${options.url} (${errCodeMsg})`);
+                const errPrefix = `Request failed: ${options.method} ${options.url}`;
+                const newErr = statusCode < 200 || statusCode >= 400
+                    ? new Error(`${errPrefix} (${errCodeMsg})`)
+                    : new Error(`${errPrefix}: ${err.message}`);
                 newErr.code = statusCode;
                 return reject(newErr);
             }

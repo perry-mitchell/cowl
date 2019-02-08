@@ -1,7 +1,8 @@
 const createTestServer = require("create-test-server");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
-const { RESPONSE_TYPE_BUFFER, request } = require("../../../source/request.js");
+const { STATUSES } = require("../../../source/status.js");
+const { RESPONSE_TYPE_BUFFER, RESPONSE_TYPE_TEXT, request } = require("../../../source/request.js");
 
 describe("request.js", function() {
     let server,
@@ -17,6 +18,10 @@ describe("request.js", function() {
                     value: 42
                 }));
             });
+            server.get("/get/text", (req, res) => {
+                res.set("Content-Type", "text/plain");
+                res.send("Two\nLines");
+            });
             server.put("/put/json", (req, res) => {
                 putData = req.body;
                 res.send(JSON.stringify({ status: "OK" }));
@@ -28,6 +33,10 @@ describe("request.js", function() {
             server.get("/get/binary", (req, res) => {
                 res.set("Content-Type", "application/octet-stream");
                 res.end(Buffer.from([0x01, 0x02, 0x03]), "binary");
+            });
+            server.get("/error/:code", (req, res) => {
+                const code = parseInt(req.params.code, 10);
+                res.status(code).send(STATUSES[code]);
             });
         });
     });
@@ -70,6 +79,18 @@ describe("request.js", function() {
             return request(url).then(result => {
                 expect(result).to.have.property("method", "GET");
                 expect(result).to.have.property("url", url);
+            });
+        });
+
+        it("can get text", function() {
+            const options = {
+                url: joinURL(server.url, "/get/text"),
+                responseType: RESPONSE_TYPE_TEXT
+            };
+            return request(options).then(result => {
+                expect(result).to.have.property("data")
+                    .that.is.a("string")
+                    .that.equals("Two\nLines");
             });
         });
 
@@ -116,6 +137,21 @@ describe("request.js", function() {
                 expect(isBuffer(result.data)).to.be.true;
                 expect(result.data.length).to.equal(3);
             });
+        });
+
+        it("rejects when the error in the range 4xx", function(done) {
+            request(joinURL(server.url, "/error/403"))
+                .then(() => {
+                    // should have failed!
+                    done(new Error("Request should have failed"));
+                })
+                .catch(err => {
+                    if (/403 Forbidden/.test(err.message)) {
+                        done();
+                    } else {
+                        done(new error(`Request should have failed with 403 Forbidden, received: ${err.message}`));
+                    }
+                });
         });
     });
 });
