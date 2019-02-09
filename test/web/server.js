@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const createTestServer = require("create-test-server");
+const { STATUSES } = require("../../source/status.js");
 
 const ADDRESS_PATH = path.resolve(__dirname, "./address.json");
 
@@ -30,11 +31,13 @@ createTestServer().then(server => {
     server.put("/put/json", (req, res) => {
         res.send(JSON.stringify({ status: "OK", payload: req.body }));
     });
-    // server.put("/put/binary", (req, res) => {
+    server.put("/put/binary", (req, res) => {
+        const buff = req.body;
         // const buff = new Uint8Array(Uint16Array.from(req.body).buffer);
         // res.send(JSON.stringify({ status: "OK", payload: (Uint8Array.from(Buffer.from([1, 2, 3]))).toString() }));
-        // res.send(JSON.stringify({ status: "OK", payload: (buff).toString() }));
-    // });
+        res.set("Content-Type", "application/octet-stream");
+        res.end(buff, "binary");
+    });
     server.get("/get/binary", (req, res) => {
         res.set("Content-Type", "application/octet-stream");
         res.end(Buffer.from([0x01, 0x02, 0x03]), "binary");

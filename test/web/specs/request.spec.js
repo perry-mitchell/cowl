@@ -1,3 +1,4 @@
+const { Buffer } = require("buffer/");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
 const { RESPONSE_TYPE_BUFFER, RESPONSE_TYPE_TEXT, request } = require("../../../source/index.js");
@@ -74,6 +75,24 @@ describe("request.js", function() {
             return request(options).then(result => {
                 expect(isBuffer(result.data)).to.be.true;
                 expect(result.data.length).to.equal(3);
+            });
+        });
+
+        it("can PUT binary data", function() {
+            const buff = Buffer.from([0x01, 0x02, 0x03]);
+            const options = {
+                url: joinURL(SERVER_URL, "/put/binary"),
+                headers: {
+                    "Content-Type": "application/octet-stream"
+                },
+                responseType: RESPONSE_TYPE_BUFFER,
+                method: "PUT",
+                body: buff
+            };
+            return request(options).then(result => {
+                expect(result.statusCode).to.equal(200);
+                expect(isBuffer(result.data)).to.be.true;
+                expect(result.data.equals(buff)).to.be.true;
             });
         });
 
