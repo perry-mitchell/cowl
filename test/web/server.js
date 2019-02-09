@@ -33,8 +33,6 @@ createTestServer().then(server => {
     });
     server.put("/put/binary", (req, res) => {
         const buff = req.body;
-        // const buff = new Uint8Array(Uint16Array.from(req.body).buffer);
-        // res.send(JSON.stringify({ status: "OK", payload: (Uint8Array.from(Buffer.from([1, 2, 3]))).toString() }));
         res.set("Content-Type", "application/octet-stream");
         res.end(buff, "binary");
     });

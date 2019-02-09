@@ -1,8 +1,6 @@
 const path = require("path");
 
 module.exports = {
-    // entry: path.resolve(__dirnamem "./source/index.js");
-
     mode: "development",
 
     module: {
@@ -24,9 +22,4 @@ module.exports = {
         fs: "empty",
         net: "empty"
     }
-
-    // output: {
-    //     filename: "cowl.js",
-    //     path: path.resolve(__dirname, "./dist")
-    // }
 };

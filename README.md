@@ -67,3 +67,16 @@ Response objects have the following structure:
 | `data`        | Object|Buffer|String | The response body          |
 | `status`      | Number    | The status code                       |
 | `statusCode`  | String    | The status code text                  |
+
+## Packaging
+
+If you're using webpack to bundle this library, make sure to check out the [example in this repo](webpack.config.js). Specifically, make sure to stub `fs` and `net`:
+
+```javascript
+{
+    node: {
+        fs: "empty",
+        net: "empty"
+    }
+}
+```
