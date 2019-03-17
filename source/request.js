@@ -26,6 +26,7 @@ const DEFAULT_OPTIONS = {
  * Convert an array buffer into a buffer
  * @param {ArrayBuffer} ab The array buffer to convert
  * @returns {Buffer} The resulting buffer
+ * @private
  */
 function convertArrayBuffer(ab) {
     const arrayBufferToBuffer = require("arraybuffer-to-buffer");
@@ -63,6 +64,23 @@ function processRequestBody(body, headersHelper) {
     return body;
 }
 
+/**
+ * @typedef {Object} Response
+ * @property {String} url - The response URL
+ * @property {String} method - The method used for the request
+ * @property {Object} headers - Response headers
+ * @property {String|Object|Buffer} data - Response data
+ * @property {Number} statusCode - The status code of the response
+ * @property {String} status - The status text
+ */
+
+/**
+ * Process the request's response
+ * @param {XMLHttpRequest} xhr XMLHttpRequest instance
+ * @param {RequestOptions} options The request options
+ * @returns {Response}
+ * @private
+ */
 function processResponse(xhr, options) {
     const { responseType } = options;
     return Promise.resolve()
@@ -111,6 +129,31 @@ function processURL(originalURL, query) {
     return originalURL;
 }
 
+/**
+ * @typedef {Object} RequestOptions
+ * @property {String} url - The URL to request
+ * @property {String=} method - The HTTP method to use for the request
+ * @property {Object|Buffer|ArrayBuffer|String=} body - The request body
+ *  to send
+ * @property {Object=} headers - The request headers
+ * @property {Object=} query - Query string parameters
+ * @property {Boolean=} withCredentials - Set the XMLHttpRequest 'withCredentials'
+ *  property
+ * @property {String=} responseType - Set the response type. This defaults to 'auto'
+ *  with which the responseType is not set on the request and is auto-detected when
+ *  the response arrives (ideal only for JSON/text). Set it to a valid value as
+ *  mentioned in the
+ *  {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType|spec}.
+ * @property {Function=} factory - Function that returns a new XMLHttpRequest instance
+ */
+
+/**
+ * Make a request
+ * @param {RequestOptions|String} optionsOrURL An object containing request options
+ *  or a string containing the URL to GET
+ * @returns {Promise.<Response>}
+ * @memberof module:Cowl
+ */
 function request(optionsOrURL) {
     const userOptions = typeof optionsOrURL === "string"
         ? { url: optionsOrURL }
