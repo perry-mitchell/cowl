@@ -2,7 +2,7 @@ const createTestServer = require("create-test-server");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
 const { STATUSES } = require("../../../source/status.js");
-const { RESPONSE_TYPE_BUFFER, RESPONSE_TYPE_TEXT, request } = require("../../../source/request.js");
+const { request } = require("../../../source/request.js");
 
 describe("request.js", function() {
     let server,
@@ -85,7 +85,18 @@ describe("request.js", function() {
         it("can get text", function() {
             const options = {
                 url: joinURL(server.url, "/get/text"),
-                responseType: RESPONSE_TYPE_TEXT
+                responseType: "text"
+            };
+            return request(options).then(result => {
+                expect(result).to.have.property("data")
+                    .that.is.a("string")
+                    .that.equals("Two\nLines");
+            });
+        });
+
+        it("can get text as 'auto'", function() {
+            const options = {
+                url: joinURL(server.url, "/get/text")
             };
             return request(options).then(result => {
                 expect(result).to.have.property("data")
@@ -131,7 +142,7 @@ describe("request.js", function() {
             const options = {
                 url: joinURL(server.url, "/get/binary"),
                 method: "GET",
-                responseType: RESPONSE_TYPE_BUFFER
+                responseType: "buffer"
             };
             return request(options).then(result => {
                 expect(isBuffer(result.data)).to.be.true;
