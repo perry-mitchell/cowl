@@ -8,27 +8,35 @@ const ADDRESS_PATH = path.resolve(__dirname, "./address.json");
 console.log("Starting server...");
 createTestServer().then(server => {
     console.log(`Server: ${server.url}`);
-    fs.writeFileSync(ADDRESS_PATH, JSON.stringify({
-        url: server.url
-    }));
+    fs.writeFileSync(
+        ADDRESS_PATH,
+        JSON.stringify({
+            url: server.url
+        })
+    );
     server.get("/_putdata", (req, res) => {
         const toSend = putData;
         putData = null;
-        res.send(JSON.stringify({
-            data: putData
-        }));
+        res.send(
+            JSON.stringify({
+                data: putData
+            })
+        );
     });
     server.get("/get/json", (req, res) => {
         res.set("Content-Type", "application/json");
-        res.send(JSON.stringify({
-            value: 42
-        }));
+        res.send(
+            JSON.stringify({
+                value: 42
+            })
+        );
     });
     server.get("/get/text", (req, res) => {
         res.set("Content-Type", "text/plain");
         res.send("Two\nLines");
     });
     server.put("/put/json", (req, res) => {
+        res.set("Content-Type", "application/json");
         res.send(JSON.stringify({ status: "OK", payload: req.body }));
     });
     server.put("/put/binary", (req, res) => {

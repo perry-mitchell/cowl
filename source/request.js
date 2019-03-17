@@ -1,131 +1,238 @@
-const xhrRequest = require("xhr-request");
+const { URL } = require("url");
+const caseless = require("caseless");
+const isBrowser = require("is-browser");
+const { parse: parseHeaders } = require("get-headers");
 const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
-const isBuffer = require("is-buffer");
+const { createNewRequest } = require("./factory.js");
+const { ERR_ABORTED, ERR_REQUEST_FAILED } = require("./symbols.js");
 const { STATUSES } = require("./status.js");
 
-const BUFFER_RESPONSE_TYPE = /buffer$/;
-const DEFAULT_METHOD = "GET";
-const RESPONSE_TYPE_BUFFER = "buffer";
-const RESPONSE_TYPE_JSON = "json";
-const RESPONSE_TYPE_TEXT = "text";
-
-/**
- * @typedef {Object} RequestOptions
- * @property {Object=} body - The body data to send
- * @property {Object=} headers - Headers to send
- * @property {String=} method - The HTTP method (default: GET)
- * @property {String|Object=} query - The query parameters for the request
- * @property {String=} responseType - The response type (buffer/json/text) (default: json). ArrayBuffers will be returned in the browser.
- */
-
-/**
- * @typedef {Object} ResponseObject
- * @property {String} url - The requested URL
- * @property {String} method - The method used
- * @property {Object} headers - Response headers
- * @property {Buffer|ArrayBuffer|String|Object} data - The response data
- * @property {Number} statusCode - The resulting status code
- * @property {String} status - The resulting status message
- */
+const CONTENT_TYPE_BINARY = /^application\/octet/;
+const CONTENT_TYPE_JSON = /^application\/json/;
+const DEFAULT_OPTIONS = {
+    body: null,
+    factory: createNewRequest,
+    headers: {},
+    method: "GET",
+    query: null,
+    responseType: "auto",
+    url: null
+};
 
 /**
  * Convert an array buffer into a buffer
  * @param {ArrayBuffer} ab The array buffer to convert
  * @returns {Buffer} The resulting buffer
+ * @private
  */
 function convertArrayBuffer(ab) {
     const arrayBufferToBuffer = require("arraybuffer-to-buffer");
     return arrayBufferToBuffer(ab);
 }
 
-/**
- * Create a response object
- * @param {RequestOptions} options The request options
- * @param {ArrayBuffer|String|Object} data The response data
- * @param {Object} response The response component from the request
- * @returns {ResponseObject} A response object
- */
-function createResponse(options, data, response) {
-    return {
-        url: response.url,
-        method: options.method,
-        headers: response.headers,
-        data: transformResponseData(options, data),
-        statusCode: response.statusCode,
-        status: STATUSES[response.statusCode]
-    };
+function deriveResponseType(xhr) {
+    const headers = caseless(parseHeaders(xhr.getAllResponseHeaders()));
+    const contentType = headers.get("content-type");
+    if (CONTENT_TYPE_BINARY.test(contentType)) {
+        return isBrowser ? "arraybuffer" : "buffer";
+    } else if (CONTENT_TYPE_JSON.test(contentType)) {
+        return "json";
+    }
+    return "text";
+}
+
+function prepareAdditionalHeaders(requestOptions, headersHelper) {
+    const { body } = requestOptions;
+    if (body && typeof body === "object" && !headersHelper.get("content-type")) {
+        headersHelper.set("Content-Type", "application/json");
+    }
+}
+
+function processRequestBody(body, headersHelper) {
+    if (typeof body === "string") {
+        return body;
+    } else if (CONTENT_TYPE_JSON.test(headersHelper.get("content-type"))) {
+        // Body wasn't a string, so it must be an object needing stringify-ing
+        return JSON.stringify(body || {});
+    } else if (body && typeof body === "object" && !headersHelper.get("content-type")) {
+        // forcing coercion to JSON
+        return JSON.stringify(body);
+    }
+    return body;
 }
 
 /**
- * Make a HTTP/S request
- * @param {String|RequestOptions} rawOptions The URL to GET or request options
- * @returns {Promise.<ResponseObject>} A promise that resolves with a response object
+ * @typedef {Object} Response
+ * @property {String} url - The response URL
+ * @property {String} method - The method used for the request
+ * @property {Object} headers - Response headers
+ * @property {String|Object|Buffer} data - Response data
+ * @property {Number} statusCode - The status code of the response
+ * @property {String} status - The status text
  */
-function request(rawOptions) {
-    const preparation = typeof rawOptions === "object" ? rawOptions : {
-        url: rawOptions
-    };
-    if (!preparation) {
-        throw new Error("Expected either a URL or an options object");
-    }
-    const options = Object.assign({}, {
-        json: true,
-        headers: {},
-        method: DEFAULT_METHOD,
-        query: {},
-        responseType: RESPONSE_TYPE_JSON
-    }, preparation);
-    options.responseType = transformResponseType(options.responseType);
-    if (!options.url) {
-        throw new Error("Expected a URL");
-    }
-    if (options.body && isBuffer(options.body) && typeof rawOptions.json !== "boolean") {
-        // If the body is a buffer and the original options did NOT specify JSON,
-        // disable the JSON parameter
-        options.json = false;
-    } else if (options.responseType !== RESPONSE_TYPE_JSON) {
-        options.json = false;
-    }
-    return new Promise(function __performRequest(resolve, reject) {
-        xhrRequest(options.url, options, function __onResponse(err, data, response) {
-            const { statusCode } = response;
-            if (err) {
-                const errCodeMsg = `${statusCode} ${STATUSES[statusCode] || "Unknown error"}`;
-                const errPrefix = `Request failed: ${options.method} ${options.url}`;
-                const newErr = statusCode < 200 || statusCode >= 400
-                    ? new Error(`${errPrefix} (${errCodeMsg})`)
-                    : new Error(`${errPrefix}: ${err.message}`);
-                newErr.code = statusCode;
-                return reject(newErr);
+
+/**
+ * Process the request's response
+ * @param {XMLHttpRequest} xhr XMLHttpRequest instance
+ * @param {RequestOptions} options The request options
+ * @returns {Response}
+ * @private
+ */
+function processResponse(xhr, options) {
+    const { responseType } = options;
+    return Promise.resolve()
+        .then(function __handleResponseData(rt = responseType) {
+            switch (rt.toLowerCase()) {
+                case "auto":
+                    return __handleResponseData(deriveResponseType(xhr));
+                case "arraybuffer":
+                /* falls-through */
+                case "buffer":
+                    if (xhr.response && isArrayBuffer(xhr.response)) {
+                        // Convert to Buffer
+                        return convertArrayBuffer(xhr.response);
+                    }
+                    return xhr.response;
+                case "json":
+                    return xhr.response && typeof xhr.response === "object"
+                        ? xhr.response
+                        : JSON.parse(xhr.responseText);
+                case "text":
+                /* falls-through */
+                default:
+                    return xhr.responseText;
             }
-            resolve(createResponse(options, data, response));
+        })
+        .then(data => {
+            return {
+                url: xhr.responseURL,
+                method: options.method,
+                headers: parseHeaders(xhr.getAllResponseHeaders()),
+                data,
+                statusCode: xhr.status,
+                status: STATUSES[xhr.status]
+            };
         });
+}
+
+function processURL(originalURL, query) {
+    if (query) {
+        const url = new URL(originalURL);
+        Object.keys(query).forEach(qsk => {
+            url.searchParams.set(qsk, query[qsk]);
+        });
+        return url.href;
+    }
+    return originalURL;
+}
+
+/**
+ * @typedef {Object} RequestOptions
+ * @property {String} url - The URL to request
+ * @property {String=} method - The HTTP method to use for the request
+ * @property {Object|Buffer|ArrayBuffer|String=} body - The request body
+ *  to send
+ * @property {Object=} headers - The request headers
+ * @property {Object=} query - Query string parameters
+ * @property {Boolean=} withCredentials - Set the XMLHttpRequest 'withCredentials'
+ *  property
+ * @property {String=} responseType - Set the response type. This defaults to 'auto'
+ *  with which the responseType is not set on the request and is auto-detected when
+ *  the response arrives (ideal only for JSON/text). Set it to a valid value as
+ *  mentioned in the
+ *  {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType|spec}.
+ * @property {Function=} factory - Function that returns a new XMLHttpRequest instance
+ */
+
+/**
+ * Make a request
+ * @param {RequestOptions|String} optionsOrURL An object containing request options
+ *  or a string containing the URL to GET
+ * @returns {Promise.<Response>}
+ * @memberof module:Cowl
+ */
+function request(optionsOrURL) {
+    const userOptions = typeof optionsOrURL === "string" ? { url: optionsOrURL } : optionsOrURL;
+    const requestOptions = Object.assign(
+        {},
+        DEFAULT_OPTIONS,
+        typeof userOptions === "object" ? userOptions : {}
+    );
+    const {
+        body,
+        factory,
+        headers: rawHeaders,
+        method,
+        query,
+        responseType,
+        url: urlRaw,
+        withCredentials
+    } = requestOptions;
+    const url = processURL(urlRaw, query);
+    // Process headers
+    const headers = {};
+    const headersHelper = caseless(headers);
+    Object.keys(rawHeaders).forEach(headerKey => {
+        headersHelper.set(headerKey, rawHeaders[headerKey]);
+    });
+    prepareAdditionalHeaders(requestOptions, headersHelper);
+    // New request
+    const req = factory();
+    // Start request
+    return new Promise(function __request(resolve, reject) {
+        const handleBadResponse = () => {
+            const err = new Error(`Request failed: ${req.status} ${req.statusText}`);
+            err.status = req.statusText;
+            err.statusCode = req.status;
+            err.code = ERR_REQUEST_FAILED;
+            reject(err);
+        };
+        req.addEventListener("load", () => {
+            if (req.status < 200 || req.status >= 400) {
+                return handleBadResponse();
+            }
+            resolve(processResponse(req, requestOptions));
+        });
+        req.addEventListener("error", () => {
+            handleBadResponse();
+        });
+        req.addEventListener("abort", () => {
+            const err = new Error("Request failed: The request was aborted");
+            err.status = "";
+            err.statusCode = 0;
+            err.code = ERR_ABORTED;
+            reject(err);
+        });
+        req.open(method, url);
+        if (typeof withCredentials === "boolean") {
+            req.withCredentials = withCredentials;
+        }
+        // Set headers
+        Object.keys(headers).forEach(headerKey => {
+            req.setRequestHeader(headerKey, headers[headerKey]);
+        });
+        // Handle response type
+        switch (responseType) {
+            case "auto":
+                break;
+            case "buffer":
+                req.responseType = isBrowser ? "arraybuffer" : "buffer";
+                break;
+            default:
+                if (responseType) {
+                    req.responseType = responseType;
+                }
+                break;
+        }
+        // Send the request
+        if (body !== null) {
+            req.send(processRequestBody(body, headersHelper));
+        } else {
+            req.send();
+        }
     });
 }
 
-function transformResponseData(options, data) {
-    if (options.responseType === RESPONSE_TYPE_JSON && typeof data === "string") {
-        // Attempt to parse data
-        return JSON.parse(data);
-    }
-    // console.log("TRANSFORM", data, isArrayBuffer(data), BUFFER_RESPONSE_TYPE.test(options.responseType));
-    if (data && isArrayBuffer(data) && BUFFER_RESPONSE_TYPE.test(options.responseType)) {
-        // Convert to Buffer
-        return convertArrayBuffer(data);
-    }
-    return data;
-}
-
-function transformResponseType(rt) {
-    if (rt === RESPONSE_TYPE_BUFFER) {
-        return "arraybuffer";
-    }
-    return rt;
-}
-
 module.exports = {
-    RESPONSE_TYPE_BUFFER,
-    RESPONSE_TYPE_JSON,
-    RESPONSE_TYPE_TEXT,
     request
 };

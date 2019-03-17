@@ -99,7 +99,7 @@ const STATUSES = {
     [UNSUPPORTED_MEDIA_TYPE]: "Unsupported Media Type",
     [REQUESTED_RANGE_NOT_SATISFIABLE]: "Requested Range not Satisfiable",
     [EXPECTATION_FAILED]: "Expectation Failed",
-    [IM_A_TEAPOT]: "I\"m a teapot",
+    [IM_A_TEAPOT]: 'I"m a teapot',
     [MISDIRECTED_REQUEST]: "Misdirected Request",
     [UNPROCESSABLE_ENTITY]: "Unprocessable Entity",
     [UPGRADE_REQUIRED]: "Locked",
@@ -119,7 +119,7 @@ const STATUSES = {
     [INSUFFICIENT_STORAGE]: "Insufficient Storage",
     [LOOP_DETECTED]: "Loop Detected",
     [NOT_EXTENDED]: "Not Extended",
-    [NETWORK_AUTHENTICATION_REQUIRED]: "Network Authentication Required",
+    [NETWORK_AUTHENTICATION_REQUIRED]: "Network Authentication Required"
 };
 
 module.exports = {
