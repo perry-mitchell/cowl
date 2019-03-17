@@ -5,8 +5,7 @@ const { STATUSES } = require("../../../source/status.js");
 const { request } = require("../../../source/request.js");
 
 describe("request.js", function() {
-    let server,
-        putData;
+    let server, putData;
 
     before(function() {
         return createTestServer().then(svr => {
@@ -14,9 +13,11 @@ describe("request.js", function() {
             console.log(`Server: ${server.url}`);
             server.get("/get/json", (req, res) => {
                 res.set("Content-Type", "application/json");
-                res.send(JSON.stringify({
-                    value: 42
-                }));
+                res.send(
+                    JSON.stringify({
+                        value: 42
+                    })
+                );
             });
             server.get("/get/text", (req, res) => {
                 res.set("Content-Type", "text/plain");
@@ -52,7 +53,8 @@ describe("request.js", function() {
     describe("request", function() {
         it("can get JSON by default", function() {
             return request(joinURL(server.url, "/get/json")).then(result => {
-                expect(result).to.have.property("data")
+                expect(result)
+                    .to.have.property("data")
                     .that.is.an("object")
                     .that.deep.equals({ value: 42 });
             });
@@ -60,7 +62,8 @@ describe("request.js", function() {
 
         it("returns headers", function() {
             return request(joinURL(server.url, "/get/json")).then(result => {
-                expect(result).to.have.property("headers")
+                expect(result)
+                    .to.have.property("headers")
                     .that.is.an("object")
                     .that.has.property("content-type")
                     .that.matches(/^application\/json/);
@@ -88,7 +91,8 @@ describe("request.js", function() {
                 responseType: "text"
             };
             return request(options).then(result => {
-                expect(result).to.have.property("data")
+                expect(result)
+                    .to.have.property("data")
                     .that.is.a("string")
                     .that.equals("Two\nLines");
             });
@@ -99,7 +103,8 @@ describe("request.js", function() {
                 url: joinURL(server.url, "/get/text")
             };
             return request(options).then(result => {
-                expect(result).to.have.property("data")
+                expect(result)
+                    .to.have.property("data")
                     .that.is.a("string")
                     .that.equals("Two\nLines");
             });
@@ -160,7 +165,13 @@ describe("request.js", function() {
                     if (/403 Forbidden/.test(err.message)) {
                         done();
                     } else {
-                        done(new error(`Request should have failed with 403 Forbidden, received: ${err.message}`));
+                        done(
+                            new error(
+                                `Request should have failed with 403 Forbidden, received: ${
+                                    err.message
+                                }`
+                            )
+                        );
                     }
                 });
         });

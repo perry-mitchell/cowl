@@ -6,7 +6,6 @@
   "scripts": {
     "docs": "jsdoc2md source/**/*.js > API.md",
     "format": "prettier --write '{{source,test}/**/*.js,webpack.config.js}'",
-    "precommit": "lint-staged",
     "test": "npm run test:node && npm run test:web && npm run test:format",
     "test:format": "prettier-check '{{source,test}/**/*.js,webpack.config.js}'",
     "test:node": "nyc mocha -r test/node/index.js -t 10000 'test/node/specs/**/*.spec.js'",
@@ -74,5 +73,10 @@
     "wait-on": "^3.2.0",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

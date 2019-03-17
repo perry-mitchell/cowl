@@ -4,10 +4,7 @@ const isBrowser = require("is-browser");
 const { parse: parseHeaders } = require("get-headers");
 const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const { createNewRequest } = require("./factory.js");
-const {
-    ERR_ABORTED,
-    ERR_REQUEST_FAILED
-} = require("./symbols.js");
+const { ERR_ABORTED, ERR_REQUEST_FAILED } = require("./symbols.js");
 const { STATUSES } = require("./status.js");
 
 const CONTENT_TYPE_BINARY = /^application\/octet/;
@@ -89,7 +86,7 @@ function processResponse(xhr, options) {
                 case "auto":
                     return __handleResponseData(deriveResponseType(xhr));
                 case "arraybuffer":
-                    /* falls-through */
+                /* falls-through */
                 case "buffer":
                     if (xhr.response && isArrayBuffer(xhr.response)) {
                         // Convert to Buffer
@@ -101,7 +98,7 @@ function processResponse(xhr, options) {
                         ? xhr.response
                         : JSON.parse(xhr.responseText);
                 case "text":
-                    /* falls-through */
+                /* falls-through */
                 default:
                     return xhr.responseText;
             }
@@ -155,15 +152,22 @@ function processURL(originalURL, query) {
  * @memberof module:Cowl
  */
 function request(optionsOrURL) {
-    const userOptions = typeof optionsOrURL === "string"
-        ? { url: optionsOrURL }
-        : optionsOrURL;
+    const userOptions = typeof optionsOrURL === "string" ? { url: optionsOrURL } : optionsOrURL;
     const requestOptions = Object.assign(
         {},
         DEFAULT_OPTIONS,
         typeof userOptions === "object" ? userOptions : {}
     );
-    const { body, factory, headers: rawHeaders, method, query, responseType, url: urlRaw, withCredentials } = requestOptions;
+    const {
+        body,
+        factory,
+        headers: rawHeaders,
+        method,
+        query,
+        responseType,
+        url: urlRaw,
+        withCredentials
+    } = requestOptions;
     const url = processURL(urlRaw, query);
     // Process headers
     const headers = {};
