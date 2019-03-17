@@ -1,7 +1,7 @@
 const { Buffer } = require("buffer/");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
-const { RESPONSE_TYPE_BUFFER, RESPONSE_TYPE_TEXT, request } = require("../../../source/index.js");
+const { request } = require("../../../source/index.js");
 
 describe("request.js", function() {
     describe("request", function() {
@@ -40,7 +40,7 @@ describe("request.js", function() {
         it("can get text", function() {
             const options = {
                 url: joinURL(SERVER_URL, "/get/text"),
-                responseType: RESPONSE_TYPE_TEXT
+                responseType: "text"
             };
             return request(options).then(result => {
                 expect(result).to.have.property("data")
@@ -70,7 +70,20 @@ describe("request.js", function() {
             const options = {
                 url: joinURL(SERVER_URL, "/get/binary"),
                 method: "GET",
-                responseType: RESPONSE_TYPE_BUFFER
+                responseType: "arraybuffer"
+            };
+            return request(options).then(result => {
+                expect(isBuffer(result.data)).to.be.true;
+                expect(result.data.length).to.equal(3);
+            });
+        });
+
+        it("can GET binary data using 'buffer' type", function() {
+            const buff = Buffer.from([1, 2, 3]);
+            const options = {
+                url: joinURL(SERVER_URL, "/get/binary"),
+                method: "GET",
+                responseType: "buffer"
             };
             return request(options).then(result => {
                 expect(isBuffer(result.data)).to.be.true;
@@ -85,7 +98,7 @@ describe("request.js", function() {
                 headers: {
                     "Content-Type": "application/octet-stream"
                 },
-                responseType: RESPONSE_TYPE_BUFFER,
+                responseType: "arraybuffer",
                 method: "PUT",
                 body: buff
             };

@@ -29,6 +29,7 @@ createTestServer().then(server => {
         res.send("Two\nLines");
     });
     server.put("/put/json", (req, res) => {
+        res.set("Content-Type", "application/json");
         res.send(JSON.stringify({ status: "OK", payload: req.body }));
     });
     server.put("/put/binary", (req, res) => {
