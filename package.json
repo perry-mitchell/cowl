@@ -4,6 +4,7 @@
   "description": "Request cowl for making requests from NodeJS/Browser/React-Native",
   "main": "source/index.js",
   "scripts": {
+    "docs": "jsdoc2md source/**/*.js > API.md",
     "test": "npm run test:node && npm run test:web",
     "test:node": "nyc mocha -r test/node/index.js -t 10000 'test/node/specs/**/*.spec.js'",
     "test:web": "rimraf test/web/address.json; concurrently --success=first -k --kill-others-on-fail -n server,tests 'node test/web/server.js' 'npm run test:web:karma'",
@@ -46,6 +47,7 @@
     "concurrently": "^4.1.0",
     "create-test-server": "^2.4.0",
     "is-buffer": "^2.0.3",
+    "jsdoc-to-markdown": "^4.0.1",
     "karma": "^4.0.1",
     "karma-chrome-launcher": "^2.2.0",
     "karma-cli": "^2.0.0",
