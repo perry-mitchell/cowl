@@ -120,7 +120,7 @@ function request(optionsOrURL) {
         DEFAULT_OPTIONS,
         typeof userOptions === "object" ? userOptions : {}
     );
-    const { body, factory, headers: rawHeaders, method, query, responseType, url: urlRaw } = requestOptions;
+    const { body, factory, headers: rawHeaders, method, query, responseType, url: urlRaw, withCredentials } = requestOptions;
     const url = processURL(urlRaw, query);
     // Process headers
     const headers = {};
@@ -157,6 +157,9 @@ function request(optionsOrURL) {
             reject(err);
         });
         req.open(method, url);
+        if (typeof withCredentials === "boolean") {
+            req.withCredentials = withCredentials;
+        }
         // Set headers
         Object.keys(headers).forEach(headerKey => {
             req.setRequestHeader(headerKey, headers[headerKey]);
