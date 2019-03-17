@@ -31,19 +31,26 @@ request({
 }).then(/* ... */);
 ```
 
-By default Cowl will send JSON if an object is passed to the body. It also tries to parse JSON as the response, by default. You can change the response type by setting it to one of `RESPONSE_TYPE_BUFFER`, `RESPONSE_TYPE_JSON` or `RESPONSE_TYPE_TEXT`.
+Cowl will automatically assume that JSON is being sent if the body is an `Object` and no `Content-Type` header is overridden. Cowl will read the response headers to automatically discern the type if `responseType` is set to "auto".
 
-_You can of course use `"buffer"`, `"json"` and `"text"` for these values, but there's no guarantee that the constant's value will remain the same in future versions of this library._
+Cowl will return a `Buffer` instance for `application/octet-stream` binary responses, even if in a browser (`ArrayBuffer`s are converted to `Buffer` instances).
+
+You can set `responseType` to be any of the following:
+
+ * `auto` - Automatically detect the response type (default)
+ * `text` - Treat the response as text
+ * `json` - Treat the response as JSON
+ * `buffer` - Treat the response as a buffer (`arraybuffer` works in the browser, but will still return a `Buffer` instance)
 
 ```javascript
-const { RESPONSE_TYPE_BUFFER, request } = require("cowl");
+const { request } = require("cowl");
 
 request({
     url: "https://server.com/res/item",
     method: "GET",
-    responseType: RESPONSE_TYPE_BUFFER
+    responseType: "buffer"
 }).then(resp => {
-    // resp.data will be a Buffer on node, and an ArrayBuffer in the browser
+    // resp.data will be a Buffer
 });
 ```
 
@@ -51,11 +58,12 @@ Request objects form the following structure:
 
 | Property    | Required | Type         | Description                           |
 |-------------|----------|--------------|---------------------------------------|
-| `url`       | Yes      | String       | The request URL                       |
-| `method`    | No       | String       | The HTTP request method (default: GET) |
-| `headers`   | No       | Object       | Headers for the request               |
-| `query`     | No       | String|Object | Query object/string                  |
-| `responseType` | No    | String       | The response type (default: json)     |
+| `url`       | Yes      | `String`     | The request URL                       |
+| `method`    | No       | `String`     | The HTTP request method (default: GET) |
+| `headers`   | No       | `Object`     | Headers for the request               |
+| `query`     | No       | `String` / `Object` | Query object/string            |
+| `responseType` | No    | `String`     | The response type (default: json)     |
+| `body`      | No       | `Object` / `String` / `Buffer` / `ArrayBuffer` | Data to upload |
 
 Response objects have the following structure:
 
