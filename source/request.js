@@ -2,6 +2,7 @@ const { URL } = require("url");
 const caseless = require("caseless");
 const isBrowser = require("is-browser");
 const { parse: parseHeaders } = require("get-headers");
+const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const { createNewRequest } = require("./factory.js");
 const {
     ERR_ABORTED,
@@ -20,6 +21,16 @@ const DEFAULT_OPTIONS = {
     responseType: "auto",
     url: null
 };
+
+/**
+ * Convert an array buffer into a buffer
+ * @param {ArrayBuffer} ab The array buffer to convert
+ * @returns {Buffer} The resulting buffer
+ */
+function convertArrayBuffer(ab) {
+    const arrayBufferToBuffer = require("arraybuffer-to-buffer");
+    return arrayBufferToBuffer(ab);
+}
 
 function deriveResponseType(xhr) {
     const headers = caseless(parseHeaders(xhr.getAllResponseHeaders()));
@@ -62,6 +73,10 @@ function processResponse(xhr, options) {
                 case "arraybuffer":
                     /* falls-through */
                 case "buffer":
+                    if (xhr.response && isArrayBuffer(xhr.response)) {
+                        // Convert to Buffer
+                        return convertArrayBuffer(xhr.response);
+                    }
                     return xhr.response;
                 case "json":
                     return xhr.response && typeof xhr.response === "object"
@@ -147,8 +162,17 @@ function request(optionsOrURL) {
             req.setRequestHeader(headerKey, headers[headerKey]);
         });
         // Handle response type
-        if (responseType && responseType !== "auto") {
-            req.responseType = responseType;
+        switch (responseType) {
+            case "auto":
+                break;
+            case "buffer":
+                req.responseType = isBrowser ? "arraybuffer" : "buffer";
+                break;
+            default:
+                if (responseType) {
+                    req.responseType = responseType;
+                }
+                break;
         }
         // Send the request
         if (body !== null) {
