@@ -1,5 +1,10 @@
 # Cowl Changelog
 
+## v0.3.1
+_2019-07-16_
+
+ * Update dependencies, remove security warnings
+
 ## v0.3.0
 _2019-07-16_
 
