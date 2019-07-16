@@ -181,7 +181,10 @@ function request(optionsOrURL) {
     // Start request
     return new Promise(function __request(resolve, reject) {
         const handleBadResponse = () => {
-            const err = new Error(`Request failed: ${req.status} ${req.statusText}`);
+            const errorMessage = req.response
+                ? `Request failed: ${req.status} ${req.statusText}: ${req.response}`
+                : `Request failed: ${req.status} ${req.statusText}`;
+            const err = new Error(errorMessage);
             err.status = req.statusText;
             err.statusCode = req.status;
             err.code = ERR_REQUEST_FAILED;
