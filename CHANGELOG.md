@@ -1,5 +1,10 @@
 # Cowl Changelog
 
+## v0.3.0
+_2019-07-16_
+
+ * Error response to include body text if present
+
 ## v0.2.0
 _2019-03-17_
 
