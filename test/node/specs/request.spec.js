@@ -167,9 +167,7 @@ describe("request.js", function() {
                     } else {
                         done(
                             new Error(
-                                `Request should have failed with 403 Forbidden, received: ${
-                                    err.message
-                                }`
+                                `Request should have failed with 403 Forbidden, received: ${err.message}`
                             )
                         );
                     }
