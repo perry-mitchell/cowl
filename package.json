@@ -1,6 +1,6 @@
 {
   "name": "cowl",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Request cowl for making requests from NodeJS/Browser/React-Native",
   "main": "source/index.js",
   "scripts": {
