@@ -1,5 +1,11 @@
 # Cowl Changelog
 
+## v0.3.2
+_2019-07-17_
+
+ * **Bugfix**:
+   * `URL` import wouldn't work in browser for `query` option
+
 ## v0.3.1
 _2019-07-16_
 
