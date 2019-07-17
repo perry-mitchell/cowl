@@ -1,4 +1,4 @@
-const { URL } = require("url");
+const { URL: NodeURL } = require("url");
 const caseless = require("caseless");
 const isBrowser = require("is-browser");
 const { parse: parseHeaders } = require("get-headers");
@@ -39,6 +39,13 @@ function deriveResponseType(xhr) {
         return "json";
     }
     return "text";
+}
+
+function getURLConstructor() {
+    if (isBrowser) {
+        return URL;
+    }
+    return NodeURL;
 }
 
 function prepareAdditionalHeaders(requestOptions, headersHelper) {
@@ -117,7 +124,8 @@ function processResponse(xhr, options) {
 
 function processURL(originalURL, query) {
     if (query) {
-        const url = new URL(originalURL);
+        const URLInst = getURLConstructor();
+        const url = new URLInst(originalURL);
         Object.keys(query).forEach(qsk => {
             url.searchParams.set(qsk, query[qsk]);
         });

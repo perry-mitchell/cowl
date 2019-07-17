@@ -85,6 +85,21 @@ describe("request.js", function() {
             });
         });
 
+        it("can set query parameters", function() {
+            const url = joinURL(server.url, "/get/json");
+            const config = {
+                url,
+                query: {
+                    test: 123,
+                    second: "word"
+                }
+            };
+            return request(config).then(result => {
+                expect(result.url).to.match(/[?&]test=123/);
+                expect(result.url).to.match(/[?&]second=word/);
+            });
+        });
+
         it("can get text", function() {
             const options = {
                 url: joinURL(server.url, "/get/text"),
