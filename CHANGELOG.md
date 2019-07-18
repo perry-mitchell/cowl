@@ -1,5 +1,14 @@
 # Cowl Changelog
 
+## v0.4.0
+_2019-07-18_
+
+ * Request failure error: `responseHeaders` and `responseBody` added
+ * **API Change**
+   * `statusCode` renamed to `status` (number)
+   * `status` renamed to `statusText` (string)
+   * Response failure error uses `status` and `statusText` as well
+
 ## v0.3.2
 _2019-07-17_
 
