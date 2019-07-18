@@ -40,8 +40,8 @@ Make a request
 | method | <code>String</code> | The method used for the request |
 | headers | <code>Object</code> | Response headers |
 | data | <code>String</code> \| <code>Object</code> \| <code>Buffer</code> | Response data |
-| statusCode | <code>Number</code> | The status code of the response |
-| status | <code>String</code> | The status text |
+| status | <code>Number</code> | The status code of the response |
+| statusText | <code>String</code> | The status text |
 
 <a name="RequestOptions"></a>
 

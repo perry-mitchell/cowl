@@ -75,8 +75,8 @@ function processRequestBody(body, headersHelper) {
  * @property {String} method - The method used for the request
  * @property {Object} headers - Response headers
  * @property {String|Object|Buffer} data - Response data
- * @property {Number} statusCode - The status code of the response
- * @property {String} status - The status text
+ * @property {Number} status - The status code of the response
+ * @property {String} statusText - The status text
  */
 
 /**
