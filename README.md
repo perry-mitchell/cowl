@@ -74,7 +74,19 @@ Response objects have the following structure:
 | `headers`     | Object    | The response headers received         |
 | `data`        | Object|Buffer|String | The response body          |
 | `status`      | Number    | The status code                       |
-| `statusCode`  | String    | The status code text                  |
+| `statusText`  | String    | The status code text                  |
+
+### Request failures
+
+If a request fails or returns a status code outside the allowed range (200-399), an error is thrown. This particular error will contain some properties to help deal with the failure:
+
+| Property          | Type      | Description                               |
+|-------------------|-----------|-------------------------------------------|
+| `status`          | `Number`  | The status code                           |
+| `statusText`      | `String`  | The status text                           |
+| `code`            | `Number`  | Usually `ERR_REQUEST_FAILED`              |
+| `responseHeaders` | `Object`  | Response headers                          |
+| `responseBody`    | `String` / * | Response body data (unprocessed)       |
 
 ## Packaging
 
