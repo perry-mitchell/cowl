@@ -72,8 +72,8 @@ describe("request.js", function() {
 
         it("returns status information", function() {
             return request(joinURL(server.url, "/get/json")).then(result => {
-                expect(result).to.have.property("statusCode", 200);
-                expect(result).to.have.property("status", "OK");
+                expect(result).to.have.property("status", 200);
+                expect(result).to.have.property("statusText", "OK");
             });
         });
 
@@ -134,7 +134,7 @@ describe("request.js", function() {
                 }
             };
             return request(options).then(result => {
-                expect(result.statusCode).to.equal(200);
+                expect(result.status).to.equal(200);
                 expect(putData).to.deep.equal({
                     testing: true
                 });
@@ -152,7 +152,7 @@ describe("request.js", function() {
                 body: buff
             };
             return request(options).then(result => {
-                expect(result.statusCode).to.equal(200);
+                expect(result.status).to.equal(200);
                 expect(putData.equals(buff)).to.be.true;
             });
         });
