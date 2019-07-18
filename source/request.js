@@ -18,6 +18,7 @@ const DEFAULT_OPTIONS = {
     responseType: "auto",
     url: null
 };
+const JSON_CONTENT_TYPE = /application\/json/;
 
 /**
  * Convert an array buffer into a buffer
@@ -116,8 +117,8 @@ function processResponse(xhr, options) {
                 method: options.method,
                 headers: parseHeaders(xhr.getAllResponseHeaders()),
                 data,
-                statusCode: xhr.status,
-                status: STATUSES[xhr.status]
+                status: xhr.status,
+                statusText: STATUSES[xhr.status]
             };
         });
 }
@@ -189,13 +190,16 @@ function request(optionsOrURL) {
     // Start request
     return new Promise(function __request(resolve, reject) {
         const handleBadResponse = () => {
-            const errorMessage = req.response
-                ? `Request failed: ${req.status} ${req.statusText}: ${req.response}`
-                : `Request failed: ${req.status} ${req.statusText}`;
+            const errorMessage =
+                req.response && !JSON_CONTENT_TYPE.test(req.getResponseHeader("Content-Type"))
+                    ? `Request failed: ${req.status} ${req.statusText}: ${req.response}`
+                    : `Request failed: ${req.status} ${req.statusText}`;
             const err = new Error(errorMessage);
-            err.status = req.statusText;
-            err.statusCode = req.status;
+            err.status = req.status;
+            err.statusText = req.statusText;
             err.code = ERR_REQUEST_FAILED;
+            err.responseHeaders = parseHeaders(req.getAllResponseHeaders());
+            err.responseBody = req.response;
             reject(err);
         };
         req.addEventListener("load", () => {

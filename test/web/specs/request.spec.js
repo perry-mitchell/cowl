@@ -145,5 +145,35 @@ describe("request.js", function() {
                     }
                 });
         });
+
+        it("attaches response headers when the request fails", function(done) {
+            request(joinURL(SERVER_URL, "/error/403"))
+                .then(() => {
+                    // should have failed!
+                    done(new Error("Request should have failed"));
+                })
+                .catch(err => {
+                    if (typeof err.responseHeaders === "object") {
+                        done();
+                    } else {
+                        done(new Error("responseHeaders should be an object"));
+                    }
+                });
+        });
+
+        it("attaches response body when the request fails", function(done) {
+            request(joinURL(SERVER_URL, "/error/403"))
+                .then(() => {
+                    // should have failed!
+                    done(new Error("Request should have failed"));
+                })
+                .catch(err => {
+                    if (err.responseBody) {
+                        done();
+                    } else {
+                        done(new Error("responseBody should be set"));
+                    }
+                });
+        });
     });
 });
