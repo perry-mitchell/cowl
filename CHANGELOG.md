@@ -1,5 +1,13 @@
 # Cowl Changelog
 
+## v0.5.0
+_2019-07-22_
+
+ * **Bugfix**:
+   * `URL` instantiation fails in browser
+ * Replace `is-browser` with `is-in-browser` for more reliable environment detection
+ * Replace Node's `URL` with `query-string` dependency
+
 ## v0.4.0
 _2019-07-18_
 
