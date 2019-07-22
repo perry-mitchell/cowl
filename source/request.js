@@ -1,7 +1,7 @@
-const { URL: NodeURL } = require("url");
 const caseless = require("caseless");
-const isBrowser = require("is-browser");
 const { parse: parseHeaders } = require("get-headers");
+const queryString = require("query-string");
+const isBrowser = require("is-in-browser").default;
 const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const { createNewRequest } = require("./factory.js");
 const { ERR_ABORTED, ERR_REQUEST_FAILED } = require("./symbols.js");
@@ -40,13 +40,6 @@ function deriveResponseType(xhr) {
         return "json";
     }
     return "text";
-}
-
-function getURLConstructor() {
-    if (isBrowser) {
-        return URL;
-    }
-    return NodeURL;
 }
 
 function prepareAdditionalHeaders(requestOptions, headersHelper) {
@@ -125,12 +118,8 @@ function processResponse(xhr, options) {
 
 function processURL(originalURL, query) {
     if (query) {
-        const URLInst = getURLConstructor();
-        const url = new URLInst(originalURL);
-        Object.keys(query).forEach(qsk => {
-            url.searchParams.set(qsk, query[qsk]);
-        });
-        return url.href;
+        const processedQueryString = queryString.stringify(query);
+        return processedQueryString ? `${originalURL}?${processedQueryString}` : originalURL;
     }
     return originalURL;
 }

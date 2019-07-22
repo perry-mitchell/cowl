@@ -1,4 +1,4 @@
-const isBrowser = require("is-browser");
+const isBrowser = require("is-in-browser").default;
 
 function createNewRequest() {
     if (!isBrowser) {
