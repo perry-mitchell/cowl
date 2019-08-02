@@ -1,5 +1,10 @@
 # Cowl Changelog
 
+## v0.6.0
+_2019-08-02_
+
+ * Response headers converted to lower-case
+
 ## v0.5.0
 _2019-07-22_
 
