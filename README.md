@@ -76,6 +76,10 @@ Response objects have the following structure:
 | `status`      | Number    | The status code                       |
 | `statusText`  | String    | The status code text                  |
 
+### Response headers
+
+Headers sent by the server are parsed and all keys converted to lower-case for easier handling.
+
 ### Request failures
 
 If a request fails or returns a status code outside the allowed range (200-399), an error is thrown. This particular error will contain some properties to help deal with the failure:
