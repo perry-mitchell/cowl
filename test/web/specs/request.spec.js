@@ -3,7 +3,7 @@ const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
 const { request } = require("../../../source/index.js");
 
-describe("request.js", function() {
+describe("request", function() {
     describe("request", function() {
         it("can get JSON by default", function() {
             return request(joinURL(SERVER_URL, "/get/json")).then(result => {
