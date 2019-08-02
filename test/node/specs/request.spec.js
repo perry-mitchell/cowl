@@ -4,7 +4,7 @@ const isBuffer = require("is-buffer");
 const { STATUSES } = require("../../../source/status.js");
 const { request } = require("../../../source/request.js");
 
-describe("request.js", function() {
+describe("request", function() {
     let server, putData;
 
     before(function() {

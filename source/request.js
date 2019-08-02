@@ -1,9 +1,9 @@
 const caseless = require("caseless");
-const { parse: parseHeaders } = require("get-headers");
 const queryString = require("query-string");
 const isBrowser = require("is-in-browser").default;
 const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const { createNewRequest } = require("./factory.js");
+const { parseHeaders } = require("./headers.js");
 const { ERR_ABORTED, ERR_REQUEST_FAILED } = require("./symbols.js");
 const { STATUSES } = require("./status.js");
 
