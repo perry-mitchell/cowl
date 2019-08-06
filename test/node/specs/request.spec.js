@@ -1,3 +1,4 @@
+const { Agent } = require("http");
 const createTestServer = require("create-test-server");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
@@ -236,6 +237,20 @@ describe("request", function() {
                     expect(err).to.have.property("statusText", "OK");
                 }
             );
+        });
+
+        it("supports setting `nodeJsOptions` that apply to XHR2 in Node", function() {
+            const url = joinURL(server.url, "/get/json");
+            const agent = new Agent();
+            sinon.spy(agent, "createConnection");
+            return request({
+                url,
+                nodeJsOptions: {
+                    httpAgent: agent
+                }
+            }).then(result => {
+                expect(agent.createConnection.callCount).to.equal(1);
+            });
         });
     });
 });

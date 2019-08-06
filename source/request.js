@@ -140,7 +140,10 @@ function processURL(originalURL, query) {
  *  mentioned in the
  *  {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType|spec}.
  * @property {Function=} factory - Function that returns a new XMLHttpRequest instance
- * @property {Function=} validateStatus - Function to validate a status value (return true for OK)
+ * @property {Function=} validateStatus - Function to validate a status value (return true
+ *  for OK)
+ * @property {Object=} nodeJsOptions - Optional NodeJS options to pass to XHR2 (not applied
+ *  in the browser)
  */
 
 /**
@@ -162,6 +165,7 @@ function request(optionsOrURL) {
         factory,
         headers: rawHeaders,
         method,
+        nodeJsOptions = null,
         query,
         responseType,
         url: urlRaw,
@@ -178,6 +182,9 @@ function request(optionsOrURL) {
     prepareAdditionalHeaders(requestOptions, headersHelper);
     // New request
     const req = factory();
+    if (req.nodejsSet && nodeJsOptions && typeof nodeJsOptions === "object") {
+        req.nodejsSet(nodeJsOptions);
+    }
     // Start request
     return new Promise(function __request(resolve, reject) {
         const handleBadResponse = (code = ERR_REQUEST_FAILED) => {
