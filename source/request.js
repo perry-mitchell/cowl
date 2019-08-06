@@ -4,7 +4,7 @@ const isBrowser = require("is-in-browser").default;
 const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const { createNewRequest } = require("./factory.js");
 const { parseHeaders } = require("./headers.js");
-const { ERR_ABORTED, ERR_REQUEST_FAILED } = require("./symbols.js");
+const { ERR_ABORTED, ERR_REQUEST_FAILED, ERR_STATUS_INVALID } = require("./symbols.js");
 const { STATUSES } = require("./status.js");
 
 const CONTENT_TYPE_BINARY = /^application\/octet/;
@@ -164,6 +164,7 @@ function request(optionsOrURL) {
         query,
         responseType,
         url: urlRaw,
+        validateStatus: statusValid = validateStatus,
         withCredentials
     } = requestOptions;
     const url = processURL(urlRaw, query);
@@ -178,7 +179,7 @@ function request(optionsOrURL) {
     const req = factory();
     // Start request
     return new Promise(function __request(resolve, reject) {
-        const handleBadResponse = () => {
+        const handleBadResponse = (code = ERR_REQUEST_FAILED) => {
             const errorMessage =
                 req.response && !JSON_CONTENT_TYPE.test(req.getResponseHeader("Content-Type"))
                     ? `Request failed: ${req.status} ${req.statusText}: ${req.response}`
@@ -186,14 +187,14 @@ function request(optionsOrURL) {
             const err = new Error(errorMessage);
             err.status = req.status;
             err.statusText = req.statusText;
-            err.code = ERR_REQUEST_FAILED;
+            err.code = code;
             err.responseHeaders = parseHeaders(req.getAllResponseHeaders());
             err.responseBody = req.response;
             reject(err);
         };
         req.addEventListener("load", () => {
-            if (req.status < 200 || req.status >= 400) {
-                return handleBadResponse();
+            if (!statusValid(req.status)) {
+                return handleBadResponse(ERR_STATUS_INVALID);
             }
             resolve(processResponse(req, requestOptions));
         });
@@ -235,6 +236,10 @@ function request(optionsOrURL) {
             req.send();
         }
     });
+}
+
+function validateStatus(status) {
+    return status >= 200 && status < 400;
 }
 
 module.exports = {
