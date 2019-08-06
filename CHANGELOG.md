@@ -1,5 +1,10 @@
 # Cowl Changelog
 
+## v0.7.0
+_2019-08-06_
+
+ * `validateStatus` option introduced
+
 ## v0.6.0
 _2019-08-02_
 
