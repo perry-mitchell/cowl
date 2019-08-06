@@ -218,5 +218,22 @@ describe("request", function() {
                     }
                 });
         });
+
+        it("supports changing status validation", function() {
+            const spy = sinon.stub().returns(false);
+            return request({
+                url: joinURL(server.url, "/get/json"),
+                validateStatus: spy
+            }).then(
+                () => {
+                    throw new Error("Should not resolve");
+                },
+                err => {
+                    expect(spy.calledWithExactly(200)).to.be.true;
+                    expect(err).to.have.property("status", 200);
+                    expect(err).to.have.property("statusText", "OK");
+                }
+            );
+        });
     });
 });
