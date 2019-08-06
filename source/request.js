@@ -140,6 +140,7 @@ function processURL(originalURL, query) {
  *  mentioned in the
  *  {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType|spec}.
  * @property {Function=} factory - Function that returns a new XMLHttpRequest instance
+ * @property {Function=} validateStatus - Function to validate a status value (return true for OK)
  */
 
 /**

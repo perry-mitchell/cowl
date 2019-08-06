@@ -59,4 +59,5 @@ Make a request
 | [withCredentials] | <code>Boolean</code> | Set the XMLHttpRequest 'withCredentials'  property |
 | [responseType] | <code>String</code> | Set the response type. This defaults to 'auto'  with which the responseType is not set on the request and is auto-detected when  the response arrives (ideal only for JSON/text). Set it to a valid value as  mentioned in the  [spec](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType). |
 | [factory] | <code>function</code> | Function that returns a new XMLHttpRequest instance |
+| [validateStatus] | <code>function</code> | Function to validate a status value (return true for OK) |
 

@@ -92,6 +92,8 @@ If a request fails or returns a status code outside the allowed range (200-399),
 | `responseHeaders` | `Object`  | Response headers                          |
 | `responseBody`    | `String` / * | Response body data (unprocessed)       |
 
+You can specify a new validation method for status codes by providing a `validateStatus` method in the request options.
+
 ## Packaging
 
 If you're using webpack to bundle this library, make sure to check out the [example in this repo](webpack.config.js). Specifically, make sure to stub `fs` and `net`:
