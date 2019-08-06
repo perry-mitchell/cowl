@@ -1,5 +1,10 @@
 # Cowl Changelog
 
+## v0.8.0
+_2019-08-06_
+
+ * `nodeJsOptions` for configuring `xhr2`
+
 ## v0.7.0
 _2019-08-06_
 
