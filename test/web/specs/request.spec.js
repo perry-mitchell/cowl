@@ -2,6 +2,7 @@ const { Buffer } = require("buffer/");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
 const { request } = require("../../../source/index.js");
+const { ERR_STATUS_INVALID } = require("../../../source/symbols.js");
 
 describe("request", function() {
     describe("request", function() {
@@ -187,6 +188,7 @@ describe("request", function() {
                 },
                 err => {
                     expect(spy.calledWithExactly(200)).to.be.true;
+                    expect(err).to.have.property("code", ERR_STATUS_INVALID);
                     expect(err).to.have.property("status", 200);
                     expect(err).to.have.property("statusText", "OK");
                 }

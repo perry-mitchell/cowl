@@ -2,6 +2,7 @@ const createTestServer = require("create-test-server");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
 const { STATUSES } = require("../../../source/status.js");
+const { ERR_STATUS_INVALID } = require("../../../source/symbols.js");
 const { request } = require("../../../source/request.js");
 
 describe("request", function() {
@@ -230,6 +231,7 @@ describe("request", function() {
                 },
                 err => {
                     expect(spy.calledWithExactly(200)).to.be.true;
+                    expect(err).to.have.property("code", ERR_STATUS_INVALID);
                     expect(err).to.have.property("status", 200);
                     expect(err).to.have.property("statusText", "OK");
                 }
