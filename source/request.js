@@ -42,9 +42,18 @@ function deriveResponseType(xhr) {
     return "text";
 }
 
+function isFormData(body) {
+    return !!(body && typeof body === "object" && `${body}` === "[object FormData]");
+}
+
 function prepareAdditionalHeaders(requestOptions, headersHelper) {
     const { body } = requestOptions;
-    if (body && typeof body === "object" && !headersHelper.get("content-type")) {
+    if (
+        body &&
+        typeof body === "object" &&
+        !isFormData(body) &&
+        !headersHelper.get("content-type")
+    ) {
         headersHelper.set("Content-Type", "application/json");
     }
 }
@@ -55,7 +64,12 @@ function processRequestBody(body, headersHelper) {
     } else if (CONTENT_TYPE_JSON.test(headersHelper.get("content-type"))) {
         // Body wasn't a string, so it must be an object needing stringify-ing
         return JSON.stringify(body || {});
-    } else if (body && typeof body === "object" && !headersHelper.get("content-type")) {
+    } else if (
+        body &&
+        typeof body === "object" &&
+        !isFormData(body) &&
+        !headersHelper.get("content-type")
+    ) {
         // forcing coercion to JSON
         return JSON.stringify(body);
     }
