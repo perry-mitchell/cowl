@@ -1,5 +1,11 @@
 # Cowl Changelog
 
+## v0.9.0
+_2020-08-01_
+
+ * `FormData` body type in requests
+ * Dependencies upgrade and audit
+
 ## v0.8.0
 _2019-08-06_
 
