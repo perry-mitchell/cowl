@@ -84,6 +84,27 @@ describe("request", function() {
             });
         });
 
+        it("can POST FormData", function() {
+            const fd = new FormData();
+            fd.append("file", new Blob([new Uint8Array([1, 2, 3]).buffer]), "file.dat");
+            fd.append("test", "value");
+            const options = {
+                url: joinURL(SERVER_URL, "/post/formdata"),
+                method: "POST",
+                body: fd
+            };
+            return request(options).then(result => {
+                expect(result.status).to.equal(200);
+                expect(result.data.payload).to.deep.equal({
+                    test: "value"
+                });
+                expect(result.data.fileSize).to.equal(3);
+                expect(result.data.headers["content-type"]).to.match(
+                    /^multipart\/form-data; boundary=----WebKitFormBoundary[a-zA-Z0-9]+$/
+                );
+            });
+        });
+
         it("can GET binary data", function() {
             const buff = Buffer.from([1, 2, 3]);
             const options = {

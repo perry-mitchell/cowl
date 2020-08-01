@@ -1,9 +1,14 @@
 const path = require("path");
 const fs = require("fs");
 const createTestServer = require("create-test-server");
+const multer = require("multer");
 const { STATUSES } = require("../../source/status.js");
 
 const ADDRESS_PATH = path.resolve(__dirname, "./address.json");
+
+const uploadMiddleware = multer({
+    storage: multer.memoryStorage()
+});
 
 console.log("Starting server...");
 createTestServer().then(server => {
@@ -38,6 +43,18 @@ createTestServer().then(server => {
     server.put("/put/json", (req, res) => {
         res.set("Content-Type", "application/json");
         res.send(JSON.stringify({ status: "OK", payload: req.body }));
+    });
+    server.post("/post/formdata", uploadMiddleware.single("file"), (req, res) => {
+        res.set("Content-Type", "application/json");
+        const file = req.file;
+        res.send(
+            JSON.stringify({
+                status: "OK",
+                payload: req.body,
+                headers: req.headers,
+                fileSize: file.size
+            })
+        );
     });
     server.put("/put/binary", (req, res) => {
         const buff = req.body;
