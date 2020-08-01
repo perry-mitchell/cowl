@@ -106,3 +106,8 @@ If you're using webpack to bundle this library, make sure to check out the [exam
     }
 }
 ```
+
+## Compatibility
+
+Cowl works on NodeJS version 10 and above. Compiling it via Babel or Webpack may allow it to function on earlier versions, but this is not officially supported.
+
