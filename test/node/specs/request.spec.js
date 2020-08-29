@@ -116,6 +116,18 @@ describe("request", function() {
             });
         });
 
+        it("can get text automatically", function() {
+            const options = {
+                url: joinURL(server.url, "/get/text")
+            };
+            return request(options).then(result => {
+                expect(result)
+                    .to.have.property("data")
+                    .that.is.a("string")
+                    .that.equals("Two\nLines");
+            });
+        });
+
         it("can PUT JSON data", function() {
             const options = {
                 url: joinURL(server.url, "/put/json"),
@@ -227,7 +239,10 @@ describe("request", function() {
         });
 
         it("does not attach response body when the request fails as JSON", function(done) {
-            request(joinURL(server.url, "/error/403"))
+            request({
+                url: joinURL(server.url, "/error/403"),
+                responseType: "json"
+            })
                 .then(() => {
                     // should have failed!
                     done(new Error("Request should have failed"));
@@ -237,6 +252,21 @@ describe("request", function() {
                         done();
                     } else {
                         done(new Error("responseBody should not be set"));
+                    }
+                });
+        });
+
+        it("attaches response body when the request fails (auto)", function(done) {
+            request(joinURL(server.url, "/error/403"))
+                .then(() => {
+                    // should have failed!
+                    done(new Error("Request should have failed"));
+                })
+                .catch(err => {
+                    if (err.responseBody) {
+                        done();
+                    } else {
+                        done(new Error("responseBody should be set"));
                     }
                 });
         });
