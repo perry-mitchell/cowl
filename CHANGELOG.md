@@ -1,5 +1,12 @@
 # Cowl Changelog
 
+## v1.0.0
+_2020-08-29_
+
+ * **Major release**
+   * Strip `Buffer` transformation (from web)
+   * `auto` mode is light - no hard transformations
+
 ## v0.9.0
 _2020-08-01_
 

@@ -39,7 +39,7 @@ Cowl will return a `Buffer` instance for `application/octet-stream` binary respo
 
 You can set `responseType` to be any of the following:
 
- * `auto` - Automatically detect the response type (default)
+ * `auto` - Automatically detect the response type (default) (ideal for text/JSON)
  * `text` - Treat the response as text
  * `json` - Treat the response as JSON
  * `arraybuffer` - Treat the response as an Array Buffer. Supported on NodeJS and in the browser.
