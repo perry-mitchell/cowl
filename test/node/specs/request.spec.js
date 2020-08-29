@@ -2,6 +2,7 @@ const { Agent } = require("http");
 const createTestServer = require("create-test-server");
 const joinURL = require("url-join");
 const isBuffer = require("is-buffer");
+const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
 const { STATUSES } = require("../../../source/status.js");
 const { ERR_STATUS_INVALID } = require("../../../source/symbols.js");
 const { request } = require("../../../source/request.js");
@@ -147,7 +148,7 @@ describe("request", function() {
             });
         });
 
-        it("can GET binary data", function() {
+        it("can GET binary data (buffer)", function() {
             const buff = Buffer.from([1, 2, 3]);
             const options = {
                 url: joinURL(server.url, "/get/binary"),
@@ -157,6 +158,19 @@ describe("request", function() {
             return request(options).then(result => {
                 expect(isBuffer(result.data)).to.be.true;
                 expect(result.data.length).to.equal(3);
+            });
+        });
+
+        it("can GET binary data (arraybuffer)", function() {
+            const buff = Buffer.from([1, 2, 3]);
+            const options = {
+                url: joinURL(server.url, "/get/binary"),
+                method: "GET",
+                responseType: "arraybuffer"
+            };
+            return request(options).then(result => {
+                expect(isArrayBuffer(result.data)).to.be.true;
+                expect(result.data.byteLength).to.equal(3);
             });
         });
 
