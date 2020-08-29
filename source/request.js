@@ -15,7 +15,7 @@ const DEFAULT_OPTIONS = {
     headers: {},
     method: "GET",
     query: null,
-    responseType: "json",
+    responseType: "auto",
     url: null
 };
 const JSON_CONTENT_TYPE = /application\/json/;
@@ -72,14 +72,35 @@ function processRequestBody(body, headersHelper) {
  * @private
  */
 function processResponse(xhr, options) {
-    return Promise.resolve({
-        url: xhr.responseURL,
-        method: options.method,
-        headers: parseHeaders(xhr.getAllResponseHeaders()),
-        data: xhr.response,
-        status: xhr.status,
-        statusText: STATUSES[xhr.status]
-    });
+    return Promise.resolve()
+        .then(() => {
+            const headers = parseHeaders(xhr.getAllResponseHeaders());
+            const headersHelper = caseless(headers);
+            if (options.responseType === "auto") {
+                const contentType = headersHelper.get("content-type");
+                if (CONTENT_TYPE_BINARY.test(contentType)) {
+                    return [xhr.response, headers];
+                }
+                if (CONTENT_TYPE_JSON.test(contentType)) {
+                    return [
+                        xhr.response && typeof xhr.response === "object"
+                            ? xhr.response
+                            : JSON.parse(xhr.responseText),
+                        headers
+                    ];
+                }
+                return [xhr.responseText || xhr.response, headers];
+            }
+            return [xhr.response, headers];
+        })
+        .then(([value, headers]) => ({
+            url: xhr.responseURL,
+            method: options.method,
+            headers,
+            data: value,
+            status: xhr.status,
+            statusText: STATUSES[xhr.status]
+        }));
 }
 
 function processURL(originalURL, query) {
