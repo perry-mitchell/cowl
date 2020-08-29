@@ -15,32 +15,10 @@ const DEFAULT_OPTIONS = {
     headers: {},
     method: "GET",
     query: null,
-    responseType: "auto",
+    responseType: "json",
     url: null
 };
 const JSON_CONTENT_TYPE = /application\/json/;
-
-/**
- * Convert an array buffer into a buffer
- * @param {ArrayBuffer} ab The array buffer to convert
- * @returns {Buffer} The resulting buffer
- * @private
- */
-function convertArrayBuffer(ab) {
-    const arrayBufferToBuffer = require("arraybuffer-to-buffer");
-    return arrayBufferToBuffer(ab);
-}
-
-function deriveResponseType(xhr) {
-    const headers = caseless(parseHeaders(xhr.getAllResponseHeaders()));
-    const contentType = headers.get("content-type");
-    if (CONTENT_TYPE_BINARY.test(contentType)) {
-        return isBrowser ? "arraybuffer" : "buffer";
-    } else if (CONTENT_TYPE_JSON.test(contentType)) {
-        return "json";
-    }
-    return "text";
-}
 
 function isFormData(body) {
     return !!(body && typeof body === "object" && `${body}` === "[object FormData]");
@@ -81,7 +59,7 @@ function processRequestBody(body, headersHelper) {
  * @property {String} url - The response URL
  * @property {String} method - The method used for the request
  * @property {Object} headers - Response headers
- * @property {String|Object|Buffer} data - Response data
+ * @property {String|Object|ArrayBuffer|Buffer} data - Response data
  * @property {Number} status - The status code of the response
  * @property {String} statusText - The status text
  */
@@ -94,40 +72,14 @@ function processRequestBody(body, headersHelper) {
  * @private
  */
 function processResponse(xhr, options) {
-    const { responseType } = options;
-    return Promise.resolve()
-        .then(function __handleResponseData(rt = responseType) {
-            switch (rt.toLowerCase()) {
-                case "auto":
-                    return __handleResponseData(deriveResponseType(xhr));
-                case "arraybuffer":
-                /* falls-through */
-                case "buffer":
-                    if (xhr.response && isArrayBuffer(xhr.response)) {
-                        // Convert to Buffer
-                        return convertArrayBuffer(xhr.response);
-                    }
-                    return xhr.response;
-                case "json":
-                    return xhr.response && typeof xhr.response === "object"
-                        ? xhr.response
-                        : JSON.parse(xhr.responseText);
-                case "text":
-                /* falls-through */
-                default:
-                    return xhr.responseText;
-            }
-        })
-        .then(data => {
-            return {
-                url: xhr.responseURL,
-                method: options.method,
-                headers: parseHeaders(xhr.getAllResponseHeaders()),
-                data,
-                status: xhr.status,
-                statusText: STATUSES[xhr.status]
-            };
-        });
+    return Promise.resolve({
+        url: xhr.responseURL,
+        method: options.method,
+        headers: parseHeaders(xhr.getAllResponseHeaders()),
+        data: xhr.response,
+        status: xhr.status,
+        statusText: STATUSES[xhr.status]
+    });
 }
 
 function processURL(originalURL, query) {
@@ -239,17 +191,12 @@ function request(optionsOrURL) {
             req.setRequestHeader(headerKey, headers[headerKey]);
         });
         // Handle response type
-        switch (responseType) {
-            case "auto":
-                break;
-            case "buffer":
-                req.responseType = isBrowser ? "arraybuffer" : "buffer";
-                break;
-            default:
-                if (responseType) {
-                    req.responseType = responseType;
-                }
-                break;
+        if (responseType) {
+            if (responseType.toLowerCase() === "buffer" && isBrowser) {
+                req.responseType = "arraybuffer";
+            } else {
+                req.responseType = responseType;
+            }
         }
         // Send the request
         if (body !== null) {
