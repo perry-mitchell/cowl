@@ -67,6 +67,7 @@ createTestServer().then(server => {
     });
     server.get("/error/:code", (req, res) => {
         const code = parseInt(req.params.code, 10);
+        console.log("SEND", code, STATUSES[code]);
         res.status(code).send(STATUSES[code]);
     });
 });
