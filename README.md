@@ -7,6 +7,8 @@
 
 Cowl is a wrapper for HTTP/S requests for use in NodeJS and the browser. React-Native is a work-in-progress. It's designed to be useable from 1 script, support bundling (via Webpack) and support sending and receiving data. It provides a simple API that uses a configuration object to make requests.
 
+Cowl can return `ArrayBuffer`s in the browser by specifying `arraybuffer` as the `responseType`. Specifying a `responseType` of `buffer` in the browser will still result in an `ArrayBuffer` being returned. Cowl can return both `ArrayBuffer`s and `Buffer`s when running on NodeJS.
+
 ## Usage
 
 Install it by running `npm install cowl`.
@@ -40,7 +42,10 @@ You can set `responseType` to be any of the following:
  * `auto` - Automatically detect the response type (default)
  * `text` - Treat the response as text
  * `json` - Treat the response as JSON
- * `buffer` - Treat the response as a buffer (`arraybuffer` works in the browser, but will still return a `Buffer` instance)
+ * `arraybuffer` - Treat the response as an Array Buffer. Supported on NodeJS and in the browser.
+ * `buffer` - Treat the response as a Buffer. Supported on NodeJS only. Specifying `buffer` in the browser will automatically default to requesting as `arraybuffer`.
+
+ **NB:** The response type is provided to the XHR mechanism, and the output is largely dependent on the server's response. The type you specify as `responseType` should match what you _expect_ to receive, not what you wish to.
 
 ```javascript
 const { request } = require("cowl");
@@ -50,7 +55,15 @@ request({
     method: "GET",
     responseType: "buffer"
 }).then(resp => {
-    // resp.data will be a Buffer
+    // resp.data will be a Buffer under NodeJS, and an ArrayBuffer in the browser
+});
+
+request({
+    url: "https://server.com/res/item",
+    method: "GET",
+    responseType: "arraybuffer"
+}).then(resp => {
+    // resp.data will be an ArrayBuffer
 });
 ```
 
@@ -62,7 +75,7 @@ Request objects form the following structure:
 | `method`    | No       | `String`     | The HTTP request method (default: GET) |
 | `headers`   | No       | `Object`     | Headers for the request               |
 | `query`     | No       | `String` / `Object` | Query object/string            |
-| `responseType` | No    | `String`     | The response type (default: json)     |
+| `responseType` | No    | `String`     | The response type (default: auto)     |
 | `body`      | No       | `Object` / `String` / `Buffer` / `ArrayBuffer` | Data to upload |
 
 Response objects have the following structure:
