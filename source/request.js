@@ -215,7 +215,7 @@ function request(optionsOrURL) {
         if (responseType) {
             if (responseType.toLowerCase() === "buffer" && isBrowser) {
                 req.responseType = "arraybuffer";
-            } else {
+            } else if (responseType !== "auto") {
                 req.responseType = responseType;
             }
         }
