@@ -41,9 +41,9 @@
     "caseless": "^0.12.0",
     "get-headers": "^1.0.5",
     "is-array-buffer": "^1.0.1",
-    "is-in-browser": "^1.1.3",
-    "query-string": "^6.13.1",
-    "xhr2": "^0.2.0"
+    "is-in-browser": "^2.0.0",
+    "query-string": "^7.1.0",
+    "xhr2": "^0.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.0",
