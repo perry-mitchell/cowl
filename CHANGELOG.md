@@ -1,5 +1,11 @@
 # Cowl Changelog
 
+## v1.0.2
+_2022-01-29_
+
+ * **Bugfix**:
+   * Handle `null` response headers in request error
+
 ## v1.0.1
 _2020-12-06_
 
