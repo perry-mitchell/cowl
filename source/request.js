@@ -183,7 +183,8 @@ function request(optionsOrURL) {
             err.status = req.status;
             err.statusText = req.statusText;
             err.code = code;
-            err.responseHeaders = parseHeaders(req.getAllResponseHeaders());
+            const responseHeaders = req.getAllResponseHeaders();
+            err.responseHeaders = responseHeaders ? parseHeaders(responseHeaders) : {};
             err.responseBody = req.response;
             reject(err);
         };
