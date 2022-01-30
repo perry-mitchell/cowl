@@ -1,5 +1,11 @@
 # Cowl Changelog
 
+## v1.0.3
+_2022-01-30_
+
+ * **Bugfix**:
+   * Revert `is-in-browser`
+
 ## v1.0.2
 _2022-01-29_
 
