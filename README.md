@@ -95,7 +95,7 @@ Headers sent by the server are parsed and all keys converted to lower-case for e
 
 ### Request failures
 
-If a request fails or returns a status code outside the allowed range (200-399), an error is thrown. This particular error will contain some properties to help deal with the failure:
+If a request fails or returns a status code outside the allowed range (200-399), an error is thrown. This particular error will contain some properties to help deal with the failure, accessible by using the [`Layerr`](https://github.com/perry-mitchell/layerr) Node library. The properties are as follows:
 
 | Property          | Type      | Description                               |
 |-------------------|-----------|-------------------------------------------|
@@ -104,6 +104,10 @@ If a request fails or returns a status code outside the allowed range (200-399),
 | `code`            | `Number`  | Usually `ERR_REQUEST_FAILED`              |
 | `responseHeaders` | `Object`  | Response headers                          |
 | `responseBody`    | `String` / * | Response body data (unprocessed)       |
+
+_Note that not all the properties will be available for all errors._
+
+_Early versions of this project set these properties directly to the `Error` instance itself, but this method is **deprecated**. Use `Layerr` or `VError` to fetch the info (via `Layerr.info(err)` or `VError.info(err)`) instead._
 
 You can specify a new validation method for status codes by providing a `validateStatus` method in the request options.
 

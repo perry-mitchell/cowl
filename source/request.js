@@ -1,7 +1,7 @@
 const caseless = require("caseless");
 const queryString = require("query-string");
 const isBrowser = require("is-in-browser").default;
-const isArrayBuffer = require("is-array-buffer/dist/is-array-buffer.common.js");
+const { Layerr } = require("layerr");
 const { createNewRequest } = require("./factory.js");
 const { parseHeaders } = require("./headers.js");
 const { ERR_ABORTED, ERR_REQUEST_FAILED, ERR_STATUS_INVALID } = require("./symbols.js");
@@ -179,11 +179,24 @@ function request(optionsOrURL) {
                 req.response && !JSON_CONTENT_TYPE.test(req.getResponseHeader("Content-Type"))
                     ? `Request failed: ${req.status} ${req.statusText}: ${req.response}`
                     : `Request failed: ${req.status} ${req.statusText}`;
-            const err = new Error(errorMessage);
+            const responseHeaders = req.getAllResponseHeaders();
+            // New error method:
+            const err = new Layerr(
+                {
+                    info: {
+                        status: req.status,
+                        statusText: req.statusText,
+                        code,
+                        responseHeaders: responseHeaders ? parseHeaders(responseHeaders) : {},
+                        responseBody: req.responseBody
+                    }
+                },
+                errorMessage
+            );
+            // Deprecated method:
             err.status = req.status;
             err.statusText = req.statusText;
             err.code = code;
-            const responseHeaders = req.getAllResponseHeaders();
             err.responseHeaders = responseHeaders ? parseHeaders(responseHeaders) : {};
             err.responseBody = req.response;
             reject(err);
@@ -198,7 +211,16 @@ function request(optionsOrURL) {
             handleBadResponse();
         });
         req.addEventListener("abort", () => {
-            const err = new Error("Request failed: The request was aborted");
+            const err = new Layerr(
+                {
+                    info: {
+                        status: "",
+                        statusCode: 0,
+                        code: ERR_ABORTED
+                    }
+                },
+                "Request failed: The request was aborted"
+            );
             err.status = "";
             err.statusCode = 0;
             err.code = ERR_ABORTED;
