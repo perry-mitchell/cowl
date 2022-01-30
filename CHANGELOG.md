@@ -1,5 +1,10 @@
 # Cowl Changelog
 
+## v1.1.0
+_2022-01-30_
+
+ * [`Layerr`](https://github.com/perry-mitchell/layerr) errors with status info
+
 ## v1.0.3
 _2022-01-30_
 
